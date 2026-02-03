@@ -1,21 +1,18 @@
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
-    // 1. Initialisierung
     await OneSignal.init({
       appId: "9d8f1046-5227-4863-a068-11d0a5e57a03",
-      safari_web_id: "DEINE_SAFARI_WEB_ID", // Optional, falls du altes MacOS Safari unterstützt
-      allowLocalhostAsSecureOrigin: true,
+      // WICHTIG: OneSignal erkennt automatisch, dass es Web Push ist.
+      // Du musst nur sicherstellen, dass Safari Web Push im Dashboard aktiviert ist.
     });
 
-    // 2. Token-Logik: Nur fragen, wenn noch kein Abo besteht
-    if (!OneSignal.Notifications.permission) {
-        await OneSignal.Notifications.requestPermission();
+    // iOS Web Push braucht oft einen "Opt-In" Trigger
+    // Wir prüfen, ob der User schon abonniert ist
+    if (!OneSignal.User.PushSubscription.id) {
+        // Zeigt ein sanftes Slidedown-Fenster, das auf iOS funktioniert
+        OneSignal.Slidedown.promptPush();
     }
-
-    // 3. Optional: Den User-ID (Token) in der Konsole anzeigen
-    console.log("OneSignal User ID:", OneSignal.User.PushSubscription.id);
   });
 </script>
