@@ -1,47 +1,21 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OneSignal iOS Test</title>
-  <link rel="manifest" href="manifest.json">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
-  <!-- OneSignal SDK -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-</head>
-<body>
-  <h1>OneSignal Push Test</h1>
-  <button id="subscribe">Push aktivieren</button>
-  <p id="status">Status: unbekannt</p>
-
-  <script>
-    window.OneSignal = window.OneSignal || [];
-    OneSignal.push(function() {
-      OneSignal.init({
-        appId: "9d8f1046-5227-4863-a068-11d0a5e57a03", // hier deine App ID
-        safari_web_id: "web.onesignal.auto.DEINE_SAFARI_WEB_ID", // für iOS Web Push nötig
-        notifyButton: { enable: false }
-      });
-
-      const statusEl = document.getElementById("status");
-      const btn = document.getElementById("subscribe");
-
-      btn.addEventListener("click", async () => {
-        const enabled = await OneSignal.isPushNotificationsEnabled();
-        if (!enabled) {
-          OneSignal.registerForPushNotifications().then(() => {
-            statusEl.textContent = "Push aktiviert ✅";
-          });
-        } else {
-          statusEl.textContent = "Push ist bereits aktiviert ✅";
-        }
-      });
-
-      OneSignal.on('subscriptionChange', function(isSubscribed) {
-        console.log("Subscription changed:", isSubscribed);
-        statusEl.textContent = isSubscribed ? "Abonniert ✅" : "Nicht abonniert ❌";
-      });
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    // 1. Initialisierung
+    await OneSignal.init({
+      appId: "9d8f1046-5227-4863-a068-11d0a5e57a03",
+      safari_web_id: "DEINE_SAFARI_WEB_ID", // Optional, falls du altes MacOS Safari unterstützt
+      allowLocalhostAsSecureOrigin: true,
     });
-  </script>
-</body>
-</html>
+
+    // 2. Token-Logik: Nur fragen, wenn noch kein Abo besteht
+    if (!OneSignal.Notifications.permission) {
+        await OneSignal.Notifications.requestPermission();
+    }
+
+    // 3. Optional: Den User-ID (Token) in der Konsole anzeigen
+    console.log("OneSignal User ID:", OneSignal.User.PushSubscription.id);
+  });
+</script>
