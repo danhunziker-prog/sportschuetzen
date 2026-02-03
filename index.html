@@ -3,16 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OneSignal Test</title>
-  <link rel="manifest" href="/sportschuetzen/manifest.json">
+  <title>OneSignal iOS Test</title>
+  <link rel="manifest" href="manifest.json">
 
   <!-- OneSignal SDK -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script src="/sportschuetzen/push-init.js" defer></script>
 </head>
 <body>
   <h1>OneSignal Push Test</h1>
   <button id="subscribe">Push aktivieren</button>
   <p id="status">Status: unbekannt</p>
+
+  <script>
+    window.OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "DEINE_ONESIGNAL_APP_ID", // hier deine App ID
+        safari_web_id: "web.onesignal.auto.DEINE_SAFARI_WEB_ID", // für iOS Web Push nötig
+        notifyButton: { enable: false }
+      });
+
+      const statusEl = document.getElementById("status");
+      const btn = document.getElementById("subscribe");
+
+      btn.addEventListener("click", async () => {
+        const enabled = await OneSignal.isPushNotificationsEnabled();
+        if (!enabled) {
+          OneSignal.registerForPushNotifications().then(() => {
+            statusEl.textContent = "Push aktiviert ✅";
+          });
+        } else {
+          statusEl.textContent = "Push ist bereits aktiviert ✅";
+        }
+      });
+
+      OneSignal.on('subscriptionChange', function(isSubscribed) {
+        console.log("Subscription changed:", isSubscribed);
+        statusEl.textContent = isSubscribed ? "Abonniert ✅" : "Nicht abonniert ❌";
+      });
+    });
+  </script>
 </body>
 </html>
