@@ -4,15 +4,19 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "9d8f1046-5227-4863-a068-11d0a5e57a03",
-      // WICHTIG: OneSignal erkennt automatisch, dass es Web Push ist.
-      // Du musst nur sicherstellen, dass Safari Web Push im Dashboard aktiviert ist.
+      // Automatische Anmeldung deaktivieren, um iOS-Fehler zu vermeiden
+      autoRegister: false, 
+      notifyButton: {
+        enable: true, // Zeigt eine kleine Glocke unten rechts
+      },
     });
 
-    // iOS Web Push braucht oft einen "Opt-In" Trigger
-    // Wir prüfen, ob der User schon abonniert ist
-    if (!OneSignal.User.PushSubscription.id) {
-        // Zeigt ein sanftes Slidedown-Fenster, das auf iOS funktioniert
-        OneSignal.Slidedown.promptPush();
+    // Prüfen, ob wir auf iOS im Standalone-Modus sind (als App gespeichert)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isIOS && !isStandalone) {
+      console.log("Bitte die App zum Homescreen hinzufügen, um Push zu aktivieren.");
     }
   });
 </script>
